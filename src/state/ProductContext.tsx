@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import React, { createContext, useContext, useEffect, useReducer, useState } from 'react';
 import { Product } from '../model/Product';
 import * as repo from '../repository/ProductRepository';
 
@@ -26,13 +26,16 @@ function reducer(state: State, action: Action): State {
       return { ...state, ...action.payload };
     case 'loading':
       return { ...state, loading: action.payload };
+    default:
+      return state;
   }
 }
 
 const ProductContext = createContext<any>(null);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer as any, initialState as State);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [onMessage, setOnMessage] = useState<((msg: string) => void) | null>(null);
 
   async function refreshAll() {
     dispatch({ type: 'loading', payload: true });
@@ -53,26 +56,30 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addProduct = async (name: string, maxPrice: number) => {
     await repo.addProduct(name, maxPrice);
+    if (onMessage) onMessage('Producto agregado');
     await refreshAll();
   };
 
   const updateProduct = async (p: Product) => {
     await repo.updateProduct(p);
+    if (onMessage) onMessage('Producto actualizado');
     await refreshAll();
   };
 
   const deleteProduct = async (id: string) => {
     await repo.deleteProduct(id);
+    if (onMessage) onMessage('Producto eliminado');
     await refreshAll();
   };
 
   const markAsBought = async (id: string, price: number) => {
     await repo.markAsBought(id, price);
+    if (onMessage) onMessage('Compra registrada');
     await refreshAll();
   };
 
   return (
-    <ProductContext.Provider value={{ ...state, addProduct, updateProduct, deleteProduct, markAsBought, refreshAll }}>
+    <ProductContext.Provider value={{ ...state, addProduct, updateProduct, deleteProduct, markAsBought, refreshAll, setOnMessage }}>
       {children}
     </ProductContext.Provider>
   );

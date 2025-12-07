@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useProducts } from '../state/ProductContext';
 import { Ionicons } from '@expo/vector-icons';
+import EmptyState from '../components/EmptyState';
 
 export default function ReportScreen() {
   const { bought } = useProducts();
@@ -9,7 +10,9 @@ export default function ReportScreen() {
   return (
     <View style={{ flex: 1, padding: 16 }}>
       {bought.length === 0 ? (
-        <Text style={{ color: '#666' }}>No has registrado ninguna compra aún.</Text>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <EmptyState title="No hay compras registradas" subtitle="Las compras que registres aparecerán aquí" icon="receipt" />
+        </View>
       ) : (
         <FlatList data={bought} keyExtractor={(i: any) => i.id} renderItem={({ item }) => (
           <View style={styles.row}>

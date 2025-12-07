@@ -3,15 +3,20 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Modal, TextInput, B
 import { useProducts } from '../state/ProductContext';
 import { Product } from '../model/Product';
 import { Ionicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation';
+import EmptyState from '../components/EmptyState';
 
-export default function BuyScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'Buy'>;
+
+export default function BuyScreen({ navigation }: Props) {
   const { toBuy, markAsBought } = useProducts();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [priceText, setPriceText] = useState('');
 
-  function openBuy(p: any) {
+  function openBuy(p: Product) {
     setSelectedId(p.id);
     setSelectedProduct(p);
     setPriceText('');
@@ -49,7 +54,15 @@ export default function BuyScreen() {
   return (
     <View style={{ flex: 1, padding: 16 }}>
       {toBuy.length === 0 ? (
-        <Text>No hay productos para comprar. Añade desde 'Base de datos'</Text>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <EmptyState
+            title="No hay productos para comprar"
+            subtitle="Añade productos desde la Base de datos para empezar a comprar"
+            icon="cart"
+            buttonText="Ir a Base de datos"
+            onPress={() => navigation.navigate('Database' as any)}
+          />
+        </View>
       ) : (
         <FlatList data={toBuy} keyExtractor={(i: any) => i.id} renderItem={renderItem} />
       )}
@@ -61,7 +74,6 @@ export default function BuyScreen() {
             <Text>Precio real:</Text>
             <TextInput keyboardType="numeric" value={priceText} onChangeText={setPriceText} style={styles.input} />
 
-            {/* Sobreprecio: feedback en tiempo real */}
             {selectedProduct && priceText.length > 0 && (() => {
               const v = parseFloat(priceText);
               if (!isNaN(v) && v > selectedProduct.maxPrice) {

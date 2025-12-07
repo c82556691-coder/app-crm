@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Modal, TextInput, B
 import { useProducts } from '../state/ProductContext';
 import { Product } from '../model/Product';
 import { Ionicons } from '@expo/vector-icons';
+import EmptyState from '../components/EmptyState';
 
 export default function DatabaseScreen() {
   const { databaseProducts, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -53,7 +54,9 @@ export default function DatabaseScreen() {
   return (
     <View style={{ flex: 1, padding: 16 }}>
       {databaseProducts.length === 0 ? (
-        <Text style={{ color: '#666' }}>No hay productos. Pulsa + para crear uno.</Text>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <EmptyState title="No hay productos" subtitle="Pulsa + para crear uno" icon="list" />
+        </View>
       ) : (
         <FlatList data={databaseProducts} keyExtractor={(i: any) => i.id} renderItem={({ item }) => (
           <TouchableOpacity onLongPress={() => openEdit(item)} style={styles.row}>
